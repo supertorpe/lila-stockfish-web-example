@@ -1,0 +1,17 @@
+{
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite --host --base=/lila-stockfish-web-example",
+    "build": "tsc && vite build --base=/lila-stockfish-web-example/",
+    "serve": "vite preview --host --base=/lila-stockfish-web-example/"
+  },
+  "type": "module",
+  "dependencies": {
+    "lila-stockfish-web": "^0.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11",
+    "vite-plugin-static-copy": "^1.0.0"
+  }
+}

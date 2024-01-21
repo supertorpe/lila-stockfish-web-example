@@ -1,0 +1,1 @@
+declare module 'lila-stockfish-web/linrock-nnue-7.js';
