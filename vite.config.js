@@ -2,6 +2,14 @@ import { defineConfig } from 'vite';
 import { splitVendorChunkPlugin } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
+const serverConfig = (server) => {
+  server.middlewares.use((_req, res, next) => {
+    res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+    next();
+  });
+}
+
 export default defineConfig({
   build: {
     sourcemap: true,
@@ -13,13 +21,8 @@ export default defineConfig({
     splitVendorChunkPlugin(),
     {
       name: "configure-response-headers",
-      configureServer: (server) => {
-        server.middlewares.use((_req, res, next) => {
-          res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-          res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-          next();
-        });
-      },
+      configureServer: serverConfig,
+      configurePreviewServer: serverConfig
     },
     viteStaticCopy({
       targets: [
@@ -29,5 +32,5 @@ export default defineConfig({
         }
       ]
     }),
-  ],
+  ]
 });
