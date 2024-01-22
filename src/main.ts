@@ -13,27 +13,34 @@ const sharedWasmMemory = (lo: number, hi = 32767): WebAssembly.Memory => {
     }
 };
 
-const makeModule = await import('lila-stockfish-web/linrock-nnue-7.js');
-const stockfish: StockfishWeb = await new Promise((resolve, reject) => {
-    makeModule
-    .default({
-        wasmMemory: sharedWasmMemory(1536!),
-        onError: (msg: string) => reject(new Error(msg)),
-        locateFile: (name: string) => `assets/stockfish/${name}`,
-    })
-    .then(resolve)
-    .catch(reject);
+const setupStockfish = (): Promise<StockfishWeb> => {
+    return new Promise<StockfishWeb>((resolve, reject) => {
+        import('lila-stockfish-web/linrock-nnue-7.js').then((makeModule: any) => {
+            makeModule
+                .default({
+                    wasmMemory: sharedWasmMemory(1536!),
+                    onError: (msg: string) => reject(new Error(msg)),
+                    locateFile: (name: string) => `assets/stockfish/${name}`,
+                })
+                .then(async (instance: StockfishWeb) => {
+                    instance;
+                    const response = await fetch(`assets/stockfish/${instance.getRecommendedNnue()}`);
+                    const buffer = await response.arrayBuffer();
+                    const uint8Array = new Uint8Array(buffer);
+                    instance.setNnueBuffer(uint8Array);
+                    resolve(instance);
+                });
+        });
+    });
+};
+
+setupStockfish().then((stockfish: StockfishWeb) => {
+    stockfish.onError = (msg: string) => { console.log(msg); }
+    stockfish.listen = (data: string) => { console.log(data); }
+    stockfish.postMessage('uci');
+    stockfish.postMessage('quit');
+}).catch((error: Error) => {
+    console.log(error.message);
 });
-
-const response = await fetch(`assets/stockfish/${stockfish.getRecommendedNnue()}`);
-const buffer = await response.arrayBuffer();
-const uint8Array = new Uint8Array(buffer);
-stockfish.setNnueBuffer(uint8Array);
-stockfish.onError = (msg: string) => { console.log(msg); }
-stockfish.listen = (data: string) => { console.log(data); }
-
-stockfish.postMessage('uci');
-
-stockfish.postMessage('quit');
 
 export { };
