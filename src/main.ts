@@ -1,3 +1,5 @@
+import StockfishWeb from 'lila-stockfish-web';
+
 const sharedWasmMemory = (lo: number, hi = 32767): WebAssembly.Memory => {
     let shrink = 4; // 32767 -> 24576 -> 16384 -> 12288 -> 8192 -> 6144 -> etc
     while (true) {
@@ -11,12 +13,27 @@ const sharedWasmMemory = (lo: number, hi = 32767): WebAssembly.Memory => {
     }
 };
 
-import('lila-stockfish-web/linrock-nnue-7.js').then((module: any) => {
-    module.default({
-        wasmMemory: sharedWasmMemory(1536),
-        onError: (msg: string) => console.log(msg),
-        //locateFile: (_name: string) => 'assets/stockfish/linrock-nnue-7.worker.js',
-    });
+const makeModule = await import('lila-stockfish-web/linrock-nnue-7.js');
+const stockfish: StockfishWeb = await new Promise((resolve, reject) => {
+    makeModule
+    .default({
+        wasmMemory: sharedWasmMemory(1536!),
+        onError: (msg: string) => reject(new Error(msg)),
+        locateFile: (name: string) => `assets/stockfish/${name}`,
+    })
+    .then(resolve)
+    .catch(reject);
 });
+
+const response = await fetch(`assets/stockfish/${stockfish.getRecommendedNnue()}`);
+const buffer = await response.arrayBuffer();
+const uint8Array = new Uint8Array(buffer);
+stockfish.setNnueBuffer(uint8Array);
+stockfish.onError = (msg: string) => { console.log(msg); }
+stockfish.listen = (data: string) => { console.log(data); }
+
+stockfish.postMessage('uci');
+
+stockfish.postMessage('quit');
 
 export { };
