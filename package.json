@@ -7,11 +7,11 @@
   },
   "type": "module",
   "dependencies": {
-    "lila-stockfish-web": "^0.0.3"
+    "lila-stockfish-web": "^0.0.4"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
-    "vite": "^5.0.11",
-    "vite-plugin-static-copy": "^1.0.0"
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11",
+    "vite-plugin-static-copy": "^1.0.4"
   }
 }

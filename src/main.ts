@@ -15,7 +15,7 @@ const sharedWasmMemory = (lo: number, hi = 32767): WebAssembly.Memory => {
 
 const setupStockfish = (): Promise<StockfishWeb> => {
     return new Promise<StockfishWeb>((resolve, reject) => {
-        import('lila-stockfish-web/linrock-nnue-7.js').then((makeModule: any) => {
+        import('lila-stockfish-web/sf16-7.js').then((makeModule: any) => {
             makeModule
                 .default({
                     wasmMemory: sharedWasmMemory(1536!),
@@ -37,8 +37,8 @@ const setupStockfish = (): Promise<StockfishWeb> => {
 setupStockfish().then((stockfish: StockfishWeb) => {
     stockfish.onError = (msg: string) => { console.log(msg); }
     stockfish.listen = (data: string) => { console.log(data); }
-    stockfish.postMessage('uci');
-    stockfish.postMessage('quit');
+    stockfish.uci('uci');
+    stockfish.uci('quit');
 }).catch((error: Error) => {
     console.log(error.message);
 });

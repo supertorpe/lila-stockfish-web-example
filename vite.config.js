@@ -14,7 +14,7 @@ export default defineConfig({
   build: {
     sourcemap: true,
     rollupOptions: {
-      external: ['lila-stockfish-web/linrock-nnue-7.js'],
+      external: ['lila-stockfish-web/sf16-7.js'],
     }
   },
   plugins: [
@@ -27,7 +27,7 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: 'node_modules/lila-stockfish-web/linrock-nnue-7*',
+          src: 'node_modules/lila-stockfish-web/sf16-7*',
           dest: 'assets/stockfish/'
         }
       ]

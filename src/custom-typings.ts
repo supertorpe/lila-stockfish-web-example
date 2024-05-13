@@ -1,1 +1,1 @@
-declare module 'lila-stockfish-web/linrock-nnue-7.js';
+declare module 'lila-stockfish-web/sf16-7.js';
