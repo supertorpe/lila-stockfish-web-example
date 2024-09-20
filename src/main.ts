@@ -18,7 +18,7 @@ const setupStockfish = (): Promise<StockfishWeb> => {
         import('lila-stockfish-web/sf17-79.js').then((makeModule: any) => {
             makeModule
                 .default({
-                    wasmMemory: sharedWasmMemory(1536!),
+                    wasmMemory: sharedWasmMemory(2560!),
                     onError: (msg: string) => reject(new Error(msg)),
                     locateFile: (name: string) => `assets/stockfish/${name}`,
                 })
