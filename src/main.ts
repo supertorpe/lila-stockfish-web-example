@@ -15,7 +15,7 @@ const sharedWasmMemory = (lo: number, hi = 32767): WebAssembly.Memory => {
 
 const setupStockfish = (): Promise<StockfishWeb> => {
     return new Promise<StockfishWeb>((resolve, reject) => {
-        import('lila-stockfish-web/sf16-7.js').then((makeModule: any) => {
+        import('lila-stockfish-web/sf17-79.js').then((makeModule: any) => {
             makeModule
                 .default({
                     wasmMemory: sharedWasmMemory(1536!),
@@ -24,23 +24,35 @@ const setupStockfish = (): Promise<StockfishWeb> => {
                 })
                 .then(async (instance: StockfishWeb) => {
                     instance;
-                    const response = await fetch(`assets/stockfish/${instance.getRecommendedNnue()}`);
-                    const buffer = await response.arrayBuffer();
-                    const uint8Array = new Uint8Array(buffer);
-                    instance.setNnueBuffer(uint8Array);
+                    console.log(`assets/stockfish/${instance.getRecommendedNnue(0)}`);
+                    console.log(`assets/stockfish/${instance.getRecommendedNnue(1)}`);
+                    Promise.all([
+                        fetch(`assets/stockfish/${instance.getRecommendedNnue(0)}`),
+                        fetch(`assets/stockfish/${instance.getRecommendedNnue(1)}`)
+                    ]).then(responses => {
+                        Promise.all(
+                            [
+                                responses[0].arrayBuffer(),
+                                responses[1].arrayBuffer()
+                            ]
+                        ).then(buffers => {
+                            instance.setNnueBuffer(new Uint8Array(buffers[0]), 0);
+                            instance.setNnueBuffer(new Uint8Array(buffers[1]), 1);
+                        });
+                    });
                     resolve(instance);
                 });
+            });
         });
+    };
+
+    setupStockfish().then((stockfish: StockfishWeb) => {
+        stockfish.onError = (msg: string) => { console.log(msg); }
+        stockfish.listen = (data: string) => { console.log(data); }
+        stockfish.uci('uci');
+        stockfish.uci('quit');
+    }).catch((error: Error) => {
+        console.log(error.message);
     });
-};
 
-setupStockfish().then((stockfish: StockfishWeb) => {
-    stockfish.onError = (msg: string) => { console.log(msg); }
-    stockfish.listen = (data: string) => { console.log(data); }
-    stockfish.uci('uci');
-    stockfish.uci('quit');
-}).catch((error: Error) => {
-    console.log(error.message);
-});
-
-export { };
+    export { };
