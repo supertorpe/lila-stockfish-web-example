@@ -32,5 +32,6 @@ export default defineConfig({
         }
       ]
     }),
-  ]
+  ],
+  optimizeDeps: { exclude: ['lila-stockfish-web'] },
 });
